@@ -11,12 +11,16 @@ L’application permet de gérer les livres, leurs auteurs et les emprunts, tout
 - Build : Maven
 
 ## 2.2 Structure du code
-image 1
+
+<img width="466" height="862" alt="image1" src="https://github.com/user-attachments/assets/20f73ed2-fbca-4eee-8a87-c96c08215803" />
+
 
 ## 2.3 Diagramme d’architecture (texte ou image)
 Navigateur 🠖 Contrôleur Spring 🠖 Service 🠖 Repository 🠖 Base MySQL 🠖 Vue Thymeleaf
 
-image 2
+![image2](https://github.com/user-attachments/assets/f14d367f-fe1a-42dc-ab1d-6ac0ffdb583c)
+
+
 
 # 3. Fonctionnalités principales
 3. Fonctionnalités principales
