@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Auteurs</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.2/dist/minty/bootstrap.min.css" />
+</head>
+<body class="bg-light">
+<div th:replace="fragments/navbar :: navbar"></div>
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="m-0">Auteurs</h1>
+        <a class="btn btn-primary" th:href="@{/auteurs/nouveau}"><span class="me-1">+</span> Nouvel auteur</a>
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover align-middle">
+                    <thead><tr><th>Nom</th><th>Nationalité</th><th class="text-end">Actions</th></tr></thead>
+                    <tbody>
+                    <tr th:each="a : ${auteurs}">
+                        <td th:text="${a.nom}"></td>
+                        <td th:text="${a.nationalite}"></td>
+                        <td class="text-end">
+                            <a class="btn btn-sm btn-outline-primary" th:href="@{'/auteurs/' + ${a.id} + '/edit'}">Modifier</a>
+                            <form th:action="@{'/auteurs/' + ${a.id} + '/delete'}" method="post" class="d-inline" onsubmit="return confirm('Supprimer cet auteur ?');">
+                                <button class="btn btn-sm btn-outline-danger" type="submit">Supprimer</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(auteurs)}"><td colspan="3" class="text-center text-muted">Aucun auteur</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+
+
+

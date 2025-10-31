@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Statistiques</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.2/dist/minty/bootstrap.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body class="bg-light">
+<div th:replace="fragments/navbar :: navbar"></div>
+<div class="container py-4">
+    <h1 class="mb-4">Statistiques</h1>
+
+    <form class="row g-2 mb-4" method="get" th:action="@{/stats}">
+        <div class="col-md-3">
+            <input id="startInput" class="form-control" type="date" name="start" th:value="${start}" />
+        </div>
+        <div class="col-md-3">
+            <input id="endInput" class="form-control" type="date" name="end" th:value="${end}" />
+        </div>
+        <div class="col-md-3">
+            <input id="limitInput" class="form-control" type="number" min="1" name="limit" th:value="${limit}" placeholder="Top auteurs (N)" />
+        </div>
+        <div class="col-md-3 d-grid">
+            <button class="btn btn-primary" type="submit">Actualiser</button>
+        </div>
+    </form>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Total emprunts</h5>
+                    <p class="display-6" th:text="${totalEmprunts}">0</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Emprunts par mois</h5>
+                    <canvas id="chartEmpruntsMois" height="200"></canvas>
+                    <hr/>
+                    <table class="table table-sm">
+                        <thead>
+                        <tr><th>Mois</th><th>Total</th></tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="m : ${parMois}">
+                            <td th:text="${m.get('month')}"></td>
+                            <td th:text="${m.get('total')}"></td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(parMois)}"><td colspan="2" class="text-muted">Aucune donnée</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Top auteurs</h5>
+                    <canvas id="chartTopAuteurs" height="200"></canvas>
+                    <hr/>
+                    <table class="table table-sm">
+                        <thead>
+                        <tr><th>Auteur</th><th>Total emprunts</th></tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="a : ${topAuteurs}">
+                            <td th:text="${a.get('nom')}"></td>
+                            <td th:text="${a.get('total')}"></td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(topAuteurs)}"><td colspan="2" class="text-muted">Aucune donnée</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Emprunts par catégorie</h5>
+                    <canvas id="chartCategories" height="220"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Emprunts par statut</h5>
+                    <canvas id="chartStatus" height="220"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    function getDates() {
+        const start = document.getElementById('startInput').value;
+        const end = document.getElementById('endInput').value;
+        return { start, end };
+    }
+
+    function monthLabel(m) {
+        const names = ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
+        return names[(m-1+12)%12] || m;
+    }
+
+    async function fetchJSON(url) {
+        const r = await fetch(url);
+        if (!r.ok) throw new Error('HTTP '+r.status);
+        return r.json();
+    }
+
+    function buildUrl(path, params) {
+        const usp = new URLSearchParams(params);
+        return path + '?' + usp.toString();
+    }
+
+    async function renderCharts() {
+        const { start, end } = getDates();
+        const limit = document.getElementById('limitInput').value || 5;
+
+        const [parMois, topAuteurs, categories, status] = await Promise.all([
+            fetchJSON(buildUrl('/api/stats/emprunts/mois', { start, end })),
+            fetchJSON(buildUrl('/api/stats/auteurs/top', { limit })),
+            fetchJSON(buildUrl('/api/stats/emprunts/categories', { start, end })),
+            fetchJSON(buildUrl('/api/stats/emprunts/status', { start, end })),
+        ]);
+
+        // Emprunts par mois
+        const moisLabels = parMois.map(x => monthLabel(x.month));
+        const moisTotals = parMois.map(x => x.total);
+        new Chart(document.getElementById('chartEmpruntsMois'), {
+            type: 'bar',
+            data: { labels: moisLabels, datasets: [{ label: 'Emprunts', data: moisTotals, backgroundColor: '#0d6efd77', borderColor: '#0d6efd' }]},
+            options: { responsive: true, plugins: { legend: { display: false } } }
+        });
+
+        // Top auteurs
+        new Chart(document.getElementById('chartTopAuteurs'), {
+            type: 'bar',
+            data: {
+                labels: topAuteurs.map(x => x.nom),
+                datasets: [{ label: 'Emprunts', data: topAuteurs.map(x => x.total), backgroundColor: '#19875477', borderColor: '#198754' }]
+            },
+            options: { indexAxis: 'y', responsive: true }
+        });
+
+        // Par catégorie
+        new Chart(document.getElementById('chartCategories'), {
+            type: 'pie',
+            data: {
+                labels: categories.map(x => x.categorie || 'Inconnue'),
+                datasets: [{ data: categories.map(x => x.total), backgroundColor: ['#0d6efd','#6f42c1','#198754','#dc3545','#fd7e14','#20c997','#0dcaf0','#6c757d'] }]
+            }
+        });
+
+        // Par statut
+        new Chart(document.getElementById('chartStatus'), {
+            type: 'doughnut',
+            data: {
+                labels: status.map(x => x.statut || 'Inconnu'),
+                datasets: [{ data: status.map(x => x.total), backgroundColor: ['#0d6efd','#ffc107','#dc3545','#198754','#6c757d'] }]
+            }
+        });
+
+    }
+
+    // Render charts after DOM loads
+    window.addEventListener('DOMContentLoaded', () => {
+        try { renderCharts(); } catch (e) { console.error(e); }
+    });
+</script>
+</body>
+</html>
+
+

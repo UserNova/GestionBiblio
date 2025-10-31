@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Nouvel emprunt</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+</head>
+<body class="bg-light">
+<div th:replace="fragments/navbar :: navbar"></div>
+<div class="container py-4">
+    <h1 class="mb-4">Nouvel emprunt</h1>
+    <form th:action="@{/emprunts}" method="post">
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label">Date emprunt</label>
+                <input class="form-control" type="date" name="dateEmprunt" th:value="${emprunt.dateEmprunt}" required />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Retour prévue</label>
+                <input class="form-control" type="date" name="dateRetourPrevue" th:value="${emprunt.dateRetourPrevue}" required />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Retour réelle</label>
+                <input class="form-control" type="date" name="dateRetourReelle" th:value="${emprunt.dateRetourReelle}" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Statut</label>
+                <input class="form-control" type="text" name="statut" th:value="${emprunt.statut}" placeholder="en cours / rendu" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Livre</label>
+                <select class="form-select" name="livreId" required>
+                    <option value="" selected>Choisir...</option>
+                    <option th:each="l : ${livres}" th:value="${l.id}" th:text="${l.titre}"></option>
+                </select>
+            </div>
+        </div>
+        <div class="mt-3 d-flex gap-2">
+            <button class="btn btn-primary" type="submit">Enregistrer</button>
+            <a class="btn btn-secondary" th:href="@{/emprunts}">Annuler</a>
+        </div>
+    </form>
+    </div>
+</body>
+</html>
+
+
+

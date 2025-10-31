@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Emprunts</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+    <style> .form-range { width: 100%; } </style>
+    </head>
+<body class="bg-light">
+<div th:replace="fragments/navbar :: navbar"></div>
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="m-0">Emprunts</h1>
+        <a class="btn btn-primary" th:href="@{/emprunts/nouveau}"><span class="me-1">+</span> Nouvel emprunt</a>
+    </div>
+
+    <form class="row g-2 mb-3" method="get" th:action="@{/emprunts}">
+        <div class="col-md-3">
+            <input class="form-control" type="text" name="statut" placeholder="Statut (en cours, rendu, ...)" th:value="${statut}" />
+        </div>
+        <div class="col-md-3">
+            <input class="form-control" type="date" name="start" th:value="${start}" />
+        </div>
+        <div class="col-md-3">
+            <input class="form-control" type="date" name="end" th:value="${end}" />
+        </div>
+        <div class="col-md-3 d-grid">
+            <button class="btn btn-outline-primary" type="submit">Filtrer</button>
+        </div>
+    </form>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover align-middle">
+                    <thead>
+                    <tr>
+                        <th>Date Emprunt</th>
+                        <th>Retour Prévue</th>
+                        <th>Retour Réelle</th>
+                        <th>Statut</th>
+                        <th>Livre</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="e : ${emprunts}">
+                        <td th:text="${e.dateEmprunt}"></td>
+                        <td th:text="${e.dateRetourPrevue}"></td>
+                        <td th:text="${e.dateRetourReelle != null ? e.dateRetourReelle : '—'}"></td>
+                        <td><span class="badge bg-info" th:text="${e.statut}"></span></td>
+                        <td th:text="${e.livre != null ? e.livre.titre : '—'}"></td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(emprunts)}">
+                        <td colspan="5" class="text-center text-muted">Aucun emprunt</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+
+
