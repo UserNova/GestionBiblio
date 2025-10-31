@@ -5,11 +5,12 @@ import com.example.GestionBiblio.repositories.LivreRepository;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 
 import java.util.List;
 
-@RestController
+@Controller
 @RequestMapping("/api/livres")
 public class LivreController {
 
@@ -20,22 +21,33 @@ public class LivreController {
     }
 
     @GetMapping
-    public List<Livre> getAll() {
-        return livreRepository.findAll();
+    public String getAll(Model model) {
+        List<Livre> livres = livreRepository.findAll();
+        model.addAttribute("livres", livres);
+        return "livres";
     }
 
     @GetMapping("/categorie/{categorie}")
-    public List<Livre> getByCategorie(@PathVariable String categorie) {
-        return livreRepository.findByCategorieIgnoreCase(categorie);
+    public String getByCategorie(@PathVariable String categorie, Model model) {
+        List<Livre> livres = livreRepository.findByCategorieIgnoreCase(categorie);
+        model.addAttribute("categorie", categorie);
+        model.addAttribute("livres", livres);
+        return "livres";
     }
 
     @GetMapping("/auteur/{auteurId}")
-    public List<Livre> getByAuteur(@PathVariable Long auteurId) {
-        return livreRepository.findByAuteurId(auteurId);
+    public String getByAuteur(@PathVariable Long auteurId, Model model) {
+        List<Livre> livres = livreRepository.findByAuteurId(auteurId);
+        model.addAttribute("auteurId", auteurId);
+        model.addAttribute("livres", livres);
+        return "livres";
     }
 
     @GetMapping("/disponible/{disponible}")
-    public List<Livre> getByDisponibilite(@PathVariable Boolean disponible) {
-        return livreRepository.findByDisponible(disponible);
+    public String getByDisponibilite(@PathVariable Boolean disponible, Model model) {
+        List<Livre> livres = livreRepository.findByDisponible(disponible);
+        model.addAttribute("disponible", disponible);
+        model.addAttribute("livres", livres);
+        return "livres";
     }
 }

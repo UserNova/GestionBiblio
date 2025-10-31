@@ -9,7 +9,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -17,7 +18,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
-@RestController
+@Controller
 @RequestMapping("/api/emprunts")
 public class EmpruntController {
 
@@ -30,27 +31,38 @@ public class EmpruntController {
     }
 
     @GetMapping
-    public List<Emprunt> getAll() {
-        return empruntRepository.findAll();
+    public String getAll(Model model) {
+        List<Emprunt> emprunts = empruntRepository.findAll();
+        model.addAttribute("emprunts", emprunts);
+        return "emprunts";
     }
 
     @GetMapping("/statut/{statut}")
-    public List<Emprunt> getByStatut(@PathVariable String statut) {
-        return empruntRepository.findByStatutIgnoreCase(statut);
+    public String getByStatut(@PathVariable String statut, Model model) {
+        List<Emprunt> emprunts = empruntRepository.findByStatutIgnoreCase(statut);
+        model.addAttribute("statut", statut);
+        model.addAttribute("emprunts", emprunts);
+        return "emprunts";
     }
 
     @GetMapping("/periode")
-    public List<Emprunt> getByPeriode(
+    public String getByPeriode(
             @RequestParam("start") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
-            @RequestParam("end") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end) {
-        return empruntRepository.findByDateEmpruntBetween(start, end);
+            @RequestParam("end") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end,
+            Model model) {
+        List<Emprunt> emprunts = empruntRepository.findByDateEmpruntBetween(start, end);
+        model.addAttribute("start", start);
+        model.addAttribute("end", end);
+        model.addAttribute("emprunts", emprunts);
+        return "emprunts";
     }
 
     // Seed fake loans per book for demo/testing
     @GetMapping("/seed")
     public String seed(
             @RequestParam(name = "perLivre", defaultValue = "1") int perLivre,
-            @RequestParam(name = "months", defaultValue = "6") int months) {
+            @RequestParam(name = "months", defaultValue = "6") int months,
+            Model model) {
         List<Livre> livres = livreRepository.findAll();
         int created = 0;
         Random rand = ThreadLocalRandom.current();
@@ -88,7 +100,9 @@ public class EmpruntController {
                 created++;
             }
         }
-        return "Seeded emprunts: " + created + " for livres: " + livres.size();
+        model.addAttribute("message", "Seeded emprunts: " + created + " for livres: " + livres.size());
+        model.addAttribute("emprunts", empruntRepository.findAll());
+        return "emprunts";
     }
 }
 

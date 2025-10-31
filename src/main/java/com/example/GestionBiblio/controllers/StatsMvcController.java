@@ -43,6 +43,28 @@ public class StatsMvcController {
             return m;
         }).collect(Collectors.toList());
 
+        List<Map<String, Object>> parCategorie = empruntRepository.countEmpruntsByCategory(start, end).stream().map(row -> {
+            Map<String, Object> m = new HashMap<>();
+            m.put("categorie", (String) row[0]);
+            m.put("total", ((Number) row[1]).longValue());
+            return m;
+        }).collect(Collectors.toList());
+
+        List<Map<String, Object>> parStatut = empruntRepository.countEmpruntsByStatus(start, end).stream().map(row -> {
+            Map<String, Object> m = new HashMap<>();
+            m.put("statut", (String) row[0]);
+            m.put("total", ((Number) row[1]).longValue());
+            return m;
+        }).collect(Collectors.toList());
+
+        List<Map<String, Object>> retardsParMois = empruntRepository.countOverdueAndTotalByMonth(start, end).stream().map(row -> {
+            Map<String, Object> m = new HashMap<>();
+            m.put("month", ((Number) row[0]).intValue());
+            m.put("overdue", ((Number) row[1]).longValue());
+            m.put("total", ((Number) row[2]).longValue());
+            return m;
+        }).collect(Collectors.toList());
+
         Map<Long, String> auteurNames = auteurRepository.findAll().stream()
                 .collect(Collectors.toMap(Auteur::getId, Auteur::getNom));
 
@@ -64,6 +86,9 @@ public class StatsMvcController {
         model.addAttribute("start", start);
         model.addAttribute("end", end);
         model.addAttribute("parMois", parMois);
+        model.addAttribute("parCategorie", parCategorie);
+        model.addAttribute("parStatut", parStatut);
+        model.addAttribute("retardsParMois", retardsParMois);
         model.addAttribute("topAuteurs", topAuteurs);
         model.addAttribute("totalEmprunts", total);
         model.addAttribute("retards", retards);
