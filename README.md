@@ -18,7 +18,7 @@ L’application permet de gérer les livres, leurs auteurs et les emprunts, tout
 ## 2.3 Diagramme d’architecture (texte ou image)
 Navigateur 🠖 Contrôleur Spring 🠖 Service 🠖 Repository 🠖 Base MySQL 🠖 Vue Thymeleaf
 
-![image2](https://github.com/user-attachments/assets/f14d367f-fe1a-42dc-ab1d-6ac0ffdb583c)
+<img width="1920" height="1080" alt="Navigateur 🠖 Contrôleur Spring 🠖 Service 🠖 Repository 🠖 Base MySQL 🠖 Vue Thymeleaf" src="https://github.com/user-attachments/assets/7c53c38e-ae78-4c10-83c1-2cb1c39c382d" />
 
 
 
